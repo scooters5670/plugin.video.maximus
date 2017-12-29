@@ -200,9 +200,11 @@ class IMDBLists(object):
         """
         Return the next page URL if it exists
         """
-        url = soup.findAll("a", {'class': 'lister-page-next'})[0]['href']
-        if url:
-            return self.base_url + path + url
+        r = soup.findAll("a", {'class': 'lister-page-next'})
+        if len(r) > 0:
+            url = r['href']
+            if url:
+                return self.base_url + path + url
         else:
             return None
 

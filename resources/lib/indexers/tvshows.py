@@ -122,6 +122,7 @@ class tvshows:
             try: u = urlparse.urlparse(url).netloc.lower()
             except: pass
 
+            log_utils.log(u)
 
             if u in self.trakt_link and '/users/' in url:
                 try:
@@ -145,7 +146,9 @@ class tvshows:
                 if idx == True: self.worker()
 
             elif u in self.imdb_link:
-                self.list = cache.get(imdb_lists.IMDBLists('tvSeries').get_imdb_url_contents, 24, url, 'tvSeries')
+                log_utils.log(url)
+                self.list = cache.get(imdb_lists.IMDBLists('tvSeries').get_imdb_url_contents, 0, url, 'tvSeries')
+                log_utils.log(self.list)
                 if idx == True: self.worker()
 
             elif u in self.tvmaze_link:

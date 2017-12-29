@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-    Maximus Add-on
-    Copyright (C) 2016 Mr Blamo
+    Covenant Add-on
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,14 +20,33 @@
 
 import re,sys,cookielib,urllib,urllib2,urlparse,gzip,StringIO,HTMLParser,time,random,base64
 
-from resources.lib.modules import cache
+
 from resources.lib.modules import workers
 from resources.lib.modules import dom_parser
-from resources.lib.modules import log_utils
 from resources.lib.modules import utils
+from resources.lib.modules import log_utils
 
+try:
+    from resources.lib.modules import cache
+    LOCAL_RUN = False
+except:
+    LOCAL_RUN = True
 
-def request(url, close=True, redirect=True, error=False, proxy=None, post=None, headers=None, mobile=False, XHR=False, limit=None, referer=None, cookie=None, compression=True, output='', timeout='30'):
+def request(url,
+            close=True,
+            redirect=True,
+            error=False,
+            proxy=None,
+            post=None,
+            headers=None,
+            mobile=False,
+            XHR=False,
+            limit=None,
+            referer=None,
+            cookie=None,
+            compression=True,
+            output='',
+            timeout='30'):
     try:
         if not url:
             return
@@ -39,7 +57,6 @@ def request(url, close=True, redirect=True, error=False, proxy=None, post=None, 
             handlers += [urllib2.ProxyHandler({'http':'%s' % (proxy)}), urllib2.HTTPHandler]
             opener = urllib2.build_opener(*handlers)
             opener = urllib2.install_opener(opener)
-
 
         if output == 'cookie' or output == 'extended' or not close == True:
             cookies = cookielib.LWPCookieJar()
@@ -59,44 +76,58 @@ def request(url, close=True, redirect=True, error=False, proxy=None, post=None, 
                 pass
 
         if url.startswith('//'): url = 'http:' + url
-
-        _headers ={}
+        _headers = {}
         try: _headers.update(headers)
         except: pass
-        if 'User-Agent' in _headers:
+
+        if 'User-Agent' in _headers.keys():
             pass
         elif not mobile == True:
-            #headers['User-Agent'] = agent()
-            _headers['User-Agent'] = cache.get(randomagent, 1)
+            if LOCAL_RUN:
+                _headers['User-Agent'] = agent()
+            else:
+                _headers['User-Agent'] = cache.get(randomagent, 1)
         else:
             _headers['User-Agent'] = 'Apple-iPhone/701.341'
-        if 'Referer' in _headers:
-            pass
-        elif referer is not None:
+        if 'Referer' not in _headers.keys() and referer is not None:
             _headers['Referer'] = referer
-        if not 'Accept-Language' in _headers:
+        if not 'Accept-Language' in _headers.keys():
             _headers['Accept-Language'] = 'en-US'
-        if 'X-Requested-With' in _headers:
+        if 'X-Requested-With' in _headers.keys():
             pass
         elif XHR == True:
             _headers['X-Requested-With'] = 'XMLHttpRequest'
-        if 'Cookie' in _headers:
+        if 'Cookie' in _headers.keys():
             pass
         elif not cookie == None:
             _headers['Cookie'] = cookie
-        if 'Accept-Encoding' in _headers:
+        if 'Accept-Encoding' in _headers.keys():
             pass
         elif compression and limit is None:
             _headers['Accept-Encoding'] = 'gzip'
 
-
         if redirect == False:
 
-            class NoRedirection(urllib2.HTTPErrorProcessor):
-                def http_response(self, request, response): return response
+            #old implementation
+            #class NoRedirection(urllib2.HTTPErrorProcessor):
+            #    def http_response(self, request, response): return response
 
-            opener = urllib2.build_opener(NoRedirection)
-            opener = urllib2.install_opener(opener)
+            #opener = urllib2.build_opener(NoRedirection)
+            #opener = urllib2.install_opener(opener)
+
+            class NoRedirectHandler(urllib2.HTTPRedirectHandler):
+                def http_error_302(self, req, fp, code, msg, headers):
+                    infourl = urllib.addinfourl(fp, headers, req.get_full_url())
+                    infourl.status = code
+                    infourl.code = code
+                    return infourl
+                http_error_300 = http_error_302
+                http_error_301 = http_error_302
+                http_error_303 = http_error_302
+                http_error_307 = http_error_302
+
+            opener = urllib2.build_opener(NoRedirectHandler())
+            urllib2.install_opener(opener)
 
             try: del _headers['Referer']
             except: pass
@@ -126,9 +157,12 @@ def request(url, close=True, redirect=True, error=False, proxy=None, post=None, 
 
                     netloc = '%s://%s' % (urlparse.urlparse(url).scheme, urlparse.urlparse(url).netloc)
 
+                    if not netloc.endswith('/'): netloc += '/'
+
                     ua = _headers['User-Agent']
 
-                    cf = cache.get(cfcookie().get, 168, netloc, ua, timeout)
+                    #cf = cache.get(cfcookie().get, 168, netloc, ua, timeout)
+                    cf = cfcookie().get()
 
                     _headers['Cookie'] = cf
 
@@ -170,6 +204,11 @@ def request(url, close=True, redirect=True, error=False, proxy=None, post=None, 
             if close == True: response.close()
             return result
 
+        elif output == 'file_size':
+            try: content = int(response.headers['Content-Length'])
+            except: content = '0'
+            response.close()
+            return content
 
         if limit == '0':
             result = response.read(224 * 1024)
@@ -209,7 +248,8 @@ def request(url, close=True, redirect=True, error=False, proxy=None, post=None, 
         if 'Blazingfast.io' in result and 'xhr.open' in result:
             netloc = '%s://%s' % (urlparse.urlparse(url).scheme, urlparse.urlparse(url).netloc)
             ua = _headers['User-Agent']
-            _headers['Cookie'] = cache.get(bfcookie().get, 168, netloc, ua, timeout)
+            #_headers['Cookie'] = cache.get(bfcookie().get, 168, netloc, ua, timeout)
+            _headers['Cookie'] = bfcookie().get()
 
             result = _basic_request(url, headers=_headers, post=post, timeout=timeout, limit=limit)
 
@@ -305,7 +345,7 @@ def randomagent():
          '40.0.2214.115', '42.0.2311.90', '42.0.2311.135', '42.0.2311.152', '43.0.2357.81', '43.0.2357.124', '44.0.2403.155', '44.0.2403.157', '45.0.2454.101',
          '45.0.2454.85', '46.0.2490.71',
          '46.0.2490.80', '46.0.2490.86', '47.0.2526.73', '47.0.2526.80', '48.0.2564.116', '49.0.2623.112', '50.0.2661.86', '51.0.2704.103', '52.0.2743.116',
-         '53.0.2785.143', '54.0.2840.71'],
+         '53.0.2785.143', '54.0.2840.71', '61.0.3163.100'],
         ['11.0'],
         ['8.0', '9.0', '10.0', '10.6']]
     WIN_VERS = ['Windows NT 10.0', 'Windows NT 7.0', 'Windows NT 6.3', 'Windows NT 6.2', 'Windows NT 6.1', 'Windows NT 6.0', 'Windows NT 5.1', 'Windows NT 5.0']
@@ -484,4 +524,16 @@ class sucuri:
         except:
             pass
 
+"""Bennu Specific"""
 
+def _get_keyboard( default="", heading="", hidden=False ):
+    """ shows a keyboard and returns a value """
+    import xbmc
+    keyboard = xbmc.Keyboard( default, heading, hidden )
+    keyboard.doModal()
+    if ( keyboard.isConfirmed() ):
+        return unicode( keyboard.getText(), "utf-8" )
+    return default
+
+def removeNonAscii(s):
+    return "".join(i for i in s if ord(i)<128)
