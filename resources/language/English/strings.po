@@ -1,6 +1,6 @@
 # Addon Name: Maximus
 # Addon id: plugin.video.maximus
-# Addon Provider: MR. Blamo
+# Addon Provider: Moose
 
 msgid ""
 msgstr ""
@@ -180,18 +180,6 @@ msgctxt "#32041"
 msgid "Episode Lists"
 msgstr ""
 
-msgctxt "#30131"
-msgid "Download Source"
-msgstr ""
-
-msgctxt "#30134"
-msgid "Set Related Show Url (Search)"
-msgstr ""
-
-msgctxt "#30135"
-msgid "Set Related Url (Manual)"
-msgstr ""
-
 msgctxt "#32042"
 msgid "No Trakt or IMDb account found."
 msgstr ""
@@ -217,23 +205,23 @@ msgid "[B]SETTINGS[/B] : Providers"
 msgstr ""
 
 msgctxt "#32048"
-msgid "[B]MAXIMUS[/B] : Downloads"
+msgid "[B]Maximus[/B] : Downloads"
 msgstr ""
 
 msgctxt "#32049"
-msgid "[B]MAXIMUS[/B] : Viewtypes"
+msgid "[B]Maximus[/B] : Viewtypes"
 msgstr ""
 
 msgctxt "#32050"
-msgid "[B]MAXIMUS[/B] : Clear providers..."
+msgid "[B]Maximus[/B] : Clear providers..."
 msgstr ""
 
 msgctxt "#32051"
-msgid "[B]MAXIMUS[/B] : Clear metadata..."
+msgid "[B]Maximus[/B] : Clear metadata..."
 msgstr ""
 
 msgctxt "#32052"
-msgid "[B]MAXIMUS[/B] : Clear cache..."
+msgid "[B]Maximus[/B] : Clear cache..."
 msgstr ""
 
 msgctxt "#32053"
@@ -576,18 +564,6 @@ msgctxt "#32403"
 msgid "Download"
 msgstr ""
 
-msgctxt "#30158"
-msgid "Downloading: %s..."
-msgstr ""
-
-msgctxt "#30159"
-msgid "Download Complete: %s"
-msgstr ""
-
-msgctxt "#30160"
-msgid "Error (%s) during download: %s"
-msgstr ""
-
 msgctxt "#32404"
 msgid "Time elapsed: %s seconds"
 msgstr ""
@@ -748,14 +724,6 @@ msgctxt "#32550"
 msgid "Check first episode of season before adding it"
 msgstr ""
 
-msgctxt "#32363"
-msgid "HEVC"
-msgstr ""
-
-msgctxt "#32373"
-msgid "Force container refresh"
-msgstr ""
-
 msgctxt "#32551"
 msgid "Add to Library"
 msgstr ""
@@ -777,7 +745,7 @@ msgid "Are you sure?"
 msgstr ""
 
 msgctxt "#32556"
-msgid "[B]MAXIMUS[/B] : Library"
+msgid "[B]Maximus[/B] : Library"
 msgstr ""
 
 msgctxt "#32557"
@@ -785,15 +753,15 @@ msgid "[B]LIBRARY[/B] : Settings"
 msgstr ""
 
 msgctxt "#32558"
-msgid "[B]MAXIMUS[/B] : Update library..."
+msgid "[B]Maximus[/B] : Update library..."
 msgstr ""
 
 msgctxt "#32559"
-msgid "[B]MAXIMUS[/B] : Movie folder..."
+msgid "[B]Maximus[/B] : Movie folder..."
 msgstr ""
 
 msgctxt "#32560"
-msgid "[B]MAXIMUS[/B] : TV folder..."
+msgid "[B]Maximus[/B] : TV folder..."
 msgstr ""
 
 msgctxt "#32561"
@@ -810,54 +778,6 @@ msgstr ""
 
 msgctxt "#32564"
 msgid "[B]TRAKT[/B] : Import TV Watchlist..."
-msgstr ""
-
-msgctxt "#32587"
-msgid "Show Extra Source Info"
-msgstr ""
-
-msgctxt "#32588"
-msgid "Premium Source Identifier Color"
-msgstr ""
-
-msgctxt "#32589"
-msgid "Blue"
-msgstr ""
-
-msgctxt "#32590"
-msgid "Red"
-msgstr ""
-
-msgctxt "#32591"
-msgid "Yellow"
-msgstr ""
-
-msgctxt "#32592"
-msgid "Deep Pink"
-msgstr ""
-
-msgctxt "#32593"
-msgid "Cyan"
-msgstr ""
-
-msgctxt "#32594"
-msgid "Lawn Green"
-msgstr ""
-
-msgctxt "#32595"
-msgid "Gold"
-msgstr ""
-
-msgctxt "#32596"
-msgid "Magenta"
-msgstr ""
-
-msgctxt "#32597"
-msgid "Yellow Green"
-msgstr ""
-
-msgctxt "#32598"
-msgid "No Color"
 msgstr ""
 
 msgctxt "#32565"

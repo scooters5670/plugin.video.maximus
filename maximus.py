@@ -2,7 +2,7 @@
 
 '''
     Maximus Add-on
-    Copyright (C) 2016 MR. Blamo
+    Copyright (C) 2017 Moose
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,10 +21,10 @@
 
 import urlparse,urlresolver,nanscrapers,sys,urllib,json,xbmc,os,zipfile,ntpath,xbmcaddon,xbmcgui
 from resources.lib.indexers import channels,episodes,movies,navigator,tvshows
-from resources.lib.modules  import changelog,control,debrid,regex,downloader,realdebrid,playcount,trailer,trakt,views,thexem
+from resources.lib.modules  import changelog,control,debrid,realdebrid,downloader,playcount,trailer,trakt,views
 from resources.lib.modules  import sources
 
-dialog = xbmcgui.Dialog()						 
+dialog = xbmcgui.Dialog()
 params = dict(urlparse.parse_qsl(sys.argv[2].replace('?','')))
 
 action = params.get('action')
@@ -100,62 +100,14 @@ elif action == 'mytvliteNavigator':
     from resources.lib.indexers import navigator
     navigator.navigator().mytvshows(lite=True)
 
-elif action == 'wtfNavigator':
-    from resources.lib.indexers import navigator
-    navigator.navigator().wtf()
-
-elif action == 'wtfliteNavigator':
-    from resources.lib.indexers import navigator
-    navigator.navigator().wtf(lite=True)	
-
-elif action == 'wtfMovies':
-    from resources.lib.indexers import navigator
-    navigator.navigator().wtfMovies()
-	
-elif action == 'wtfShows':
-    from resources.lib.indexers import navigator
-    navigator.navigator().wtfShows()
-
-elif action == 'movieMosts':
-    from resources.lib.indexers import navigator
-    navigator.navigator().movieMosts()
-
-elif action == 'showMosts':
-    from resources.lib.indexers import navigator
-    navigator.navigator().showMosts()
-	
-elif action == 'playlistNavigator':
-    from resources.lib.indexers import navigator
-    navigator.navigator().playlist()
-
-elif action == 'playlistliteNavigator':
-    from resources.lib.indexers import navigator
-    navigator.navigator().playlist(lite=True)
-
-elif action == 'spikeNavigator':
-    from resources.lib.indexers import navigator
-    navigator.navigator().spike()
-	
-elif action == 'spikeliteNavigator':
-    from resources.lib.indexers import navigator
-    navigator.navigator().spike(lite=True)
-
 elif action == 'customNavigator':
     from resources.lib.indexers import navigator
     navigator.navigator().custom()
-	
+
 elif action == 'customliteNavigator':
     from resources.lib.indexers import navigator
     navigator.navigator().custom(lite=True)
 
-elif action == 'imdbLists':
-    from resources.lib.indexers import navigator
-    navigator.navigator().imdbLists()	
-
-elif action == 'critterLists':
-    from resources.lib.indexers import navigator
-    navigator.navigator().critterLists()	
-	
 elif action == 'downloadNavigator':
     from resources.lib.indexers import navigator
     navigator.navigator().downloads()
@@ -247,10 +199,6 @@ elif action == 'tvPerson':
 elif action == 'tvGenres':
     from resources.lib.indexers import tvshows
     tvshows.tvshows().genres()
-
-elif action == 'tvNetworks':
-    from resources.lib.indexers import tvshows
-    tvshows.tvshows().networks()
 
 elif action == 'tvLanguages':
     from resources.lib.indexers import tvshows
@@ -358,10 +306,10 @@ elif action == 'play':
 		from resources.lib.modules import sources
 		sources.sources().play_dialog_list(title, year, imdb, tvdb, season, episode, tvshowtitle, premiered, meta, select)
     else:
-		from resources.lib.modules import sources										  
+		from resources.lib.modules import sources
 		sources.sources().play(title, year, imdb, tvdb, season, episode, tvshowtitle, premiered, meta, select)
 
-		
+
 elif action == 'play_alter':
 		from resources.lib.modules import sources
 		sources.sources().play_alter(title, year, imdb, tvdb, season, episode, tvshowtitle, premiered, meta)

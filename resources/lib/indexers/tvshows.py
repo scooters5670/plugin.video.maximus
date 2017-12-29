@@ -2,7 +2,7 @@
 
 '''
     Maximus Add-on
-    Copyright (C) 2016 Mr. Blamo
+    Copyright (C) 2017 Moose
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,7 +30,8 @@ from resources.lib.modules import playcount
 from resources.lib.modules import workers
 from resources.lib.modules import views
 from resources.lib.modules import utils
-from resources.lib.indexers import navigator
+from resources.lib.modules import log_utils
+from resources.lib.modules import imdb_lists
 
 import os,sys,re,json,urllib,urlparse,datetime
 
@@ -99,7 +100,7 @@ class tvshows:
         self.search2_link = 'http://api.trakt.tv/shows/search/%s?limit=40&page=1'
         self.calendar_link = 'http://api.trakt.tv/calendars/all/shows?limit=40&page=1'
         self.premieres_link = 'http://api.trakt.tv/calendars/all/shows/premieres?limit=40&page=1'
-		
+
         self.traktlists_link = 'http://api.trakt.tv/users/me/lists'
         self.traktlikedlists_link = 'http://api.trakt.tv/users/likes/lists?limit=1000000'
         self.traktlist_link = 'http://api.trakt.tv/users/%s/lists/%s/items'
@@ -143,15 +144,9 @@ class tvshows:
                 self.list = cache.get(self.trakt_list, 24, url, self.trakt_user)
                 if idx == True: self.worker()
 
-
-            elif u in self.imdb_link and ('/user/' in url or '/list/' in url):
-                self.list = cache.get(self.imdb_list, 0, url)
-                if idx == True: self.worker()
-
             elif u in self.imdb_link:
-                self.list = cache.get(self.imdb_list, 24, url)
+                self.list = cache.get(imdb_lists.IMDBLists('tvSeries').get_imdb_url_contents, 24, url, 'tvSeries')
                 if idx == True: self.worker()
-
 
             elif u in self.tvmaze_link:
                 self.list = cache.get(self.tvmaze_list, 168, url)
@@ -237,162 +232,6 @@ class tvshows:
         self.addDirectory(self.list)
         return self.list
 
-    def networks(self):
-        networks = [
-#        ('Test', '/webchannels/45/ufc-fight-pass'),
-        ('5 Star', '/networks/553/5star'),
-        ('A&E', '/networks/29/ae'),
-        ('ABC', '/networks/3/abc'),
-        ('AMC', '/networks/20/amc'),
-        ('Adult Swim', '/networks/10/adult-swim'),
-        ('American Heroes Channel', '/networks/229/ahc'),
-        ('Amazon', '/webchannels/3/amazon'),
-        ('Animal Planet', '/networks/92/animal-planet'),
-        ('Audience', '/networks/31/audience-network'),
-        ('BBC Alba', '/networks/565/bbc-alba'),
-        ('BBC America', '/networks/15/bbc-america'),
-        ('BBC One', '/networks/12/bbc-one'),
-        ('BBC One Northern Ireland', '/networks/389/bbc-one-northern-ireland'),
-        ('BBC One Scotland', '/networks/1042/bbc-one-scotland'),
-        ('BBC One Wales', '/networks/352/bbc-one-wales'),
-        ('BBC One Parliament', '/networks/697/bbc-one-parliament'),
-        ('BBC Two', '/networks/37/bbc-two'),
-        ('BBC Two Northern Ireland', '/networks/556/bbc-two-northern-ireland'),
-        ('BBC Two Scotland', '/networks/1045/bbc-two-scotland'),
-        ('BBC Two Wales', '/networks/353/bbc-two-wales'),
-        ('BBC Four', '/networks/51/bbc-four'),
-        ('BBC News', '/networks/696/bbc-news'),
-        ('BBC World News', '/networks/315/bbc-world-news'),
-        ('Biography', '/networks/719/biography-channel'),
-        ('BET', '/networks/56/bet'),
-        ('Bounce TV', '/networks/261/bounce-tv'),
-        ('Boomerang', '/networks/456/boomerang'),
-        ('Bravo', '/networks/52/bravo'),
-        ('BT Sport 1', '/networks/620/bt-sport-1'),
-        ('CBBC', '/networks/60/cbbc'),
-        ('CBeebies', '/networks/458/cbeebies'),
-        ('CBC', '/networks/36/cbc'),
-        ('CBS', '/networks/2/cbs'),
-        ('CBS All Access', '/webchannels/107/cbs-all-access'),
-        ('CBS Reality', '/networks/566/cbs-reality'),
-        ('Channel 4', '/networks/45/channel-4'),
-        ('Channel 5', '/networks/135/channel-5'),
-        ('CMT', '/networks/173/cmt'),
-        ('CW', '/networks/5/the-cw'),
-        ('CW Seed', '/webchannels/13/cw-seed'),
-        ('Cartoon Network', '/networks/11/cartoon-network'),
-        ('Cinemax', '/networks/19/cinemax'),
-        ('Cooking Channel', '/networks/174/cooking-channel'),
-        ('Comedy Central', '/networks/23/comedy-central'),
-        ('Crackle', '/webchannels/4/crackle'),
-        ('Dave', '/networks/59/dave'),
-        ('Destination America', '/networks/107/destination-america'),
-        ('Discovery Family', '/networks/176/discovery-family'),
-        ('Discovery Kids', '/networks/745/discovery-kids'),
-        ('Discovery Life', '/networks/177/discovery-life-channel'),
-        ('Discovery Channel', '/networks/66/discovery-channel'),
-        ('Discovery ID', '/networks/89/investigation-discovery'),
-        ('Disney Channel', '/networks/78/disney-channel'),
-        ('Disney Junior', '/networks/1039/disney-junior'),
-        ('Disney XD', '/networks/25/disney-xd'),
-        ('DIY Network', '/networks/90/diy-network'),
-        ('E! Entertainment', '/networks/43/e'),
-        ('E4', '/networks/41/e4'),
-        ('Epix', '/networks/253/epix'),
-        ('Fearnet', '/networks/466/fearnet'),
-        ('Food Networks', '/networks/81/food-network'),
-        ('Fox Family', '/networks/987/fox-family'),
-        ('Fuse TV', '/networks/186/fuse-tv'),
-        ('FOX', '/networks/4/fox'),
-        ('FOX UK', '/networks/359/fox'),
-        ('FX', '/networks/13/fx'),
-        ('FXX', '/networks/47/fxx'),
-        ('Freeform', '/networks/26/freeform'),
-        ('FYI', '/networks/125/fyi'),
-        ('G4', '/networks/248/g4'),
-        ('Gold', '/networks/388/gold'),
-        ('Good Food', '/networks/651/good-food'),
-        ('GSN', '/networks/189/game-show-network'),
-        ('H2', '/networks/74/h2'),
-        ('HBO', '/networks/8/hbo'),
-        ('HGTV', '/networks/192/hgtv'),
-        ('Hallmark', '/networks/50/hallmark-channel'),
-        ('History Channel', '/networks/53/history'),
-        ('Hulu', '/webchannels/2/hulu'),
-        ('IFC', '/networks/65/ifc'),
-        ('ID', '/networks/89/investigation-discovery'),
-        ('ION', '/networks/194/ion-television'),
-        ('ITV', '/networks/35/itv'),
-        ('ITV2', '/networks/54/itv2'),
-        ('ITV4', '/networks/310/itv4'),
-        ('Lifetime', '/networks/18/lifetime'),
-        ('Logo TV', '/networks/117/logo-tv'),
-        ('Me-TV', '/networks/198/me-tv'),
-        ('More4', '/networks/548/more4'),
-        ('MTV', '/networks/22/mtv'),
-        ('myTV', '/networks/203/mynetworktv'),
-        ('NBC', '/networks/1/nbc'),
-        ('Nat Geo Wild', '/networks/83/national-geographic-wild'),
-        ('National Geographic', '/networks/42/national-geographic-channel'),
-        ('Netflix', '/webchannels/1/netflix'),
-        ('Nick Jr', '/networks/206/nick-jr'),
-        ('nick@nite', '/networks/62/nicknite'),
-        ('Nicktoons', '/networks/73/nicktoons'),
-        ('Nickelodeon', '/networks/27/nickelodeon'),
-        ('OWN', '/networks/236/oprah-winfrey-network'),
-        ('Oxygen', '/networks/79/oxygen'),
-        ('PBS', '/networks/85/pbs'),
-        ('Pop', '/networks/88/pop'),
-        ('Quest', '/networks/368/quest'),
-        ('Quest Red', '/networks/1369/quest-red'),
-        ('Really', '/networks/343/really'),
-        ('S4C', '/networks/64/s4c'),
-        ('Science', '/networks/77/science'),
-        ('Sky 1', '/networks/63/sky-1'),
-        ('Sky Arts', '/networks/69/sky-arts'),
-        ('Sky Atlantic', '/networks/113/sky-atlantic'),
-        ('Sky Sports 1', '/networks/445/sky-sports-1'),
-        ('Smithsonian', '/networks/86/smithsonian-channel'),
-        ('Speed', '/networks/284/speed-tv'),
-        ('Spike', '/networks/34/spike'),
-        ('Sprout', '/networks/342/sprout'),
-        ('Style', '/networks/319/style-tv'),
-        ('Showtime', '/networks/9/showtime'),
-        ('Starz', '/networks/17/starz'),
-        ('STV', '/networks/777/stv'),
-        ('Sundance', '/networks/33/sundance-tv'),
-        ('Syfy', '/networks/16/syfy'),
-        ('TBS', '/networks/32/tbs'),
-        ('TeenNick', '/networks/101/teennick'),
-        ('The CW', '/networks/5/the-cw'),
-        ('The WB', '/networks/71/the-wb'),
-        ('Toon Disney', '/networks/223/toon-disney'),
-        ('TV Land', '/networks/57/tv-land'),
-        ('TV One', '/networks/224/tv-one'),
-        ('TLC', '/networks/80/tlc'),
-        ('TNT', '/networks/14/tnt'),
-        ('TV Land', '/networks/57/tvland'),
-        ('Travel Channel', '/networks/82/travel-channel'),
-        ('TruTV', '/networks/84/trutv'),
-        ('USA', '/networks/30/usa-network'),
-        ('VH1', '/networks/55/vh1'),
-        ('Velocity', '/networks/142/velocity'),
-        ('Viceland', '/networks/1006/viceland'),
-        ('W', '/networks/295/w'),
-        ('WE TV', '/networks/122/we-tv'),
-        ('WGN', '/networks/28/wgn-america'),
-        ('WWE Network', '/webchannels/15/wwe-network'),
-        ('Yesterday', '/networks/345/yesterday'),
-        ('YouTube Red', '/webchannels/43/youtube-red')
-
-
-        ]
-
-        for i in networks: self.list.append({'name': i[0], 'url': self.tvmaze_link + i[1], 'image': 'networks.png', 'action': 'tvshows'})
-        self.addDirectory(self.list)
-        return self.list
-
-
     def languages(self):
         languages = [
         ('Arabic', 'ar'),
@@ -458,19 +297,25 @@ class tvshows:
             pass
 
         try:
-            if trakt.getTraktCredentialsInfo() == False: raise Exception()
+            if trakt.getTraktCredentialsInfo() == False:
+                raise Exception("Trakt user not set")
             try:
                 if activity > cache.timeout(self.trakt_user_list, self.traktlists_link, self.trakt_user): raise Exception()
                 userlists += cache.get(self.trakt_user_list, 720, self.traktlists_link, self.trakt_user)
             except:
                 userlists += cache.get(self.trakt_user_list, 0, self.traktlists_link, self.trakt_user)
-        except:
+        except Exception as e:
+            log_utils.log('Trakt user list error: %s' % (e), log_utils.LOGWARNING)
             pass
         try:
             self.list = []
-            if self.imdb_user == '': raise Exception()
-            userlists += cache.get(self.imdb_user_list, 0, self.imdblists_link)
-        except:
+            if not self.imdb_user:
+                raise Exception('IMDB user not set')
+            userlists += cache.get(imdb_lists.IMDBLists('tvSeries',
+                    imdb_user=self.imdb_user).get_user_lists, 0, 'tvSeries')
+            log_utils.log(user_lists)
+        except Exception as e:
+            log_utils.log('IMDB user list error: %s' % (e), log_utils.LOGWARNING)
             pass
         try:
             self.list = []
@@ -609,104 +454,6 @@ class tvshows:
         self.list = sorted(self.list, key=lambda k: utils.title_key(k['name']))
         return self.list
 
-
-    def imdb_list(self, url):
-        try:
-            dupes = []
-
-            for i in re.findall('date\[(\d+)\]', url):
-                url = url.replace('date[%s]' % i, (self.datetime - datetime.timedelta(days = int(i))).strftime('%Y-%m-%d'))
-
-            def imdb_watchlist_id(url):
-                return client.parseDOM(client.request(url), 'meta', ret='content', attrs = {'property': 'pageId'})[0]
-
-            if url == self.imdbwatchlist_link:
-                url = cache.get(imdb_watchlist_id, 8640, url)
-                url = self.imdblist_link % url
-
-            elif url == self.imdbwatchlist2_link:
-                url = cache.get(imdb_watchlist_id, 8640, url)
-                url = self.imdblist2_link % url
-
-            result = client.request(url)
-
-            result = result.replace('\n', ' ')
-
-            items = client.parseDOM(result, 'div', attrs = {'class': 'lister-item mode-advanced'})
-            items += client.parseDOM(result, 'div', attrs = {'class': 'list_item.+?'})
-        except:
-            return
-
-        try:
-            next = client.parseDOM(result, 'a', ret='href', attrs = {'class': 'lister-page-next.+?'})
-
-            if len(next) == 0:
-                next = client.parseDOM(result, 'div', attrs = {'class': 'pagination'})[0]
-                next = zip(client.parseDOM(next, 'a', ret='href'), client.parseDOM(next, 'a'))
-                next = [i[0] for i in next if 'Next' in i[1]]
-
-            next = url.replace(urlparse.urlparse(url).query, urlparse.urlparse(next[0]).query)
-            next = client.replaceHTMLCodes(next)
-            next = next.encode('utf-8')
-        except:
-            next = ''
-
-        for item in items:
-            try:
-                title = client.parseDOM(item, 'a')[1]
-                title = client.replaceHTMLCodes(title)
-                title = title.encode('utf-8')
-
-                year = client.parseDOM(item, 'span', attrs = {'class': 'lister-item-year.+?'})
-                year += client.parseDOM(item, 'span', attrs = {'class': 'year_type'})
-                year = re.findall('(\d{4})', year[0])[0]
-                year = year.encode('utf-8')
-
-                if int(year) > int((self.datetime).strftime('%Y')): raise Exception()
-
-                imdb = client.parseDOM(item, 'a', ret='href')[0]
-                imdb = re.findall('(tt\d*)', imdb)[0]
-                imdb = imdb.encode('utf-8')
-
-                if imdb in dupes: raise Exception()
-                dupes.append(imdb)
-
-                try: poster = client.parseDOM(item, 'img', ret='loadlate')[0]
-                except: poster = '0'
-                if '/nopicture/' in poster: poster = '0'
-                poster = re.sub('(?:_SX|_SY|_UX|_UY|_CR|_AL)(?:\d+|_).+?\.', '_SX500.', poster)
-                poster = client.replaceHTMLCodes(poster)
-                poster = poster.encode('utf-8')
-
-                rating = '0'
-                try: rating = client.parseDOM(item, 'span', attrs = {'class': 'rating-rating'})[0]
-                except: pass
-                try: rating = client.parseDOM(rating, 'span', attrs = {'class': 'value'})[0]
-                except: rating = '0'
-                try: rating = client.parseDOM(item, 'div', ret='data-value', attrs = {'class': '.*?imdb-rating'})[0]
-                except: pass
-                if rating == '' or rating == '-': rating = '0'
-                rating = client.replaceHTMLCodes(rating)
-                rating = rating.encode('utf-8')
-
-                plot = '0'
-                try: plot = client.parseDOM(item, 'p', attrs = {'class': 'text-muted'})[0]
-                except: pass
-                try: plot = client.parseDOM(item, 'div', attrs = {'class': 'item_description'})[0]
-                except: pass
-                plot = plot.rsplit('<span>', 1)[0].strip()
-                plot = re.sub('<.+?>|</.+?>', '', plot)
-                if plot == '': plot = '0'
-                plot = client.replaceHTMLCodes(plot)
-                plot = plot.encode('utf-8')
-
-                self.list.append({'title': title, 'originaltitle': title, 'year': year, 'rating': rating, 'plot': plot, 'imdb': imdb, 'tvdb': '0', 'poster': poster, 'next': next})
-            except:
-                pass
-
-        return self.list
-
-
     def imdb_person_list(self, url):
         try:
             result = client.request(url)
@@ -736,33 +483,6 @@ class tvshows:
             except:
                 pass
 
-        return self.list
-
-
-    def imdb_user_list(self, url):
-        try:
-            result = client.request(url)
-            items = client.parseDOM(result, 'div', attrs = {'class': 'list_name'})
-        except:
-            pass
-
-        for item in items:
-            try:
-                name = client.parseDOM(item, 'a')[0]
-                name = client.replaceHTMLCodes(name)
-                name = name.encode('utf-8')
-
-                url = client.parseDOM(item, 'a', ret='href')[0]
-                url = url.split('/list/', 1)[-1].replace('/', '')
-                url = self.imdblist_link % url
-                url = client.replaceHTMLCodes(url)
-                url = url.encode('utf-8')
-
-                self.list.append({'name': name, 'url': url, 'context': url})
-            except:
-                pass
-
-        self.list = sorted(self.list, key=lambda k: utils.title_key(k['name']))
         return self.list
 
 
@@ -808,7 +528,7 @@ class tvshows:
                 tvdb = tvdb.encode('utf-8')
 
                 if tvdb == None or tvdb == '': raise Exception()
- 
+
                 try: poster = item['image']['original']
                 except: poster = '0'
                 if poster == None or poster == '': poster = '0'
@@ -1320,5 +1040,3 @@ class tvshows:
 
         control.content(syshandle, 'addons')
         control.directory(syshandle, cacheToDisc=True)
-
-
