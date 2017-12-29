@@ -56,9 +56,9 @@ class IMDBLists(object):
             list_id = item['id']
             list_name = item.find("a", {"class": "list-name"}).get_text()
             if self.title_type == 'tvSeries':
-                url = "{}/list/{}".format(self.base_url, list_id)
+                url = "{}/list/{}/?sort=alpha,asc".format(self.base_url, list_id)
             else:
-                url = "{}/list/{}".format(self.base_url, list_id)
+                url = "{}/list/{}/?sort=alpha,asc".format(self.base_url, list_id)
             ulist.append({'name': list_name, 'id': list_id, 'url': url, 'tvdb': '0'})
         return ulist
 
@@ -202,7 +202,7 @@ class IMDBLists(object):
         """
         r = soup.findAll("a", {'class': 'lister-page-next'})
         if len(r) > 0:
-            url = r['href']
+            url = r[0]['href']
             if url:
                 return self.base_url + path + url
         else:
